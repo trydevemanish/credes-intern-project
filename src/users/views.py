@@ -1,40 +1,62 @@
 from rest_framework import status
-from django.http import JsonResponse
-from .serializers import UserSerializers
-from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.decorators import APIView
 from django.contrib.auth import get_user_model
-from django.views.decorators.csrf import csrf_exempt
-
+from .serializers import UserSerializers,UserTokenSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from utils.permissions import IsAdmin
 
 User = get_user_model()
 
 # Create your views here.
 
-@csrf_exempt
-@api_view(['POST'])
-def RegisterUser(request):
-    if request.method == 'POST':
+class RegisterUser(APIView):
+
+    def post(self,request):
         serializer = UserSerializers(data=request.data)
         if serializer.is_valid():
-            checkUserExit = User.objects.filter(email=serializer.data.email).first()
+            email = serializer.validated_data['email']
+            checkUserExit = User.objects.filter(email=email).exists()
             if checkUserExit:
                 print('Email already exits!')
-                return JsonResponse({'message':'Email alreay exits!'},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message':'Email alreay exits!'},status=status.HTTP_400_BAD_REQUEST)
             else:
                 serializer.save()
-                return JsonResponse({'message':'User registerd'},status=status.HTTP_201_CREATED)
+                return Response({'message':'User registerd'},status=status.HTTP_201_CREATED)
         else:
-            return JsonResponse({'message':'Data is not valid'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message':'Data is not valid'},status=status.HTTP_400_BAD_REQUEST)
         
-    return JsonResponse({'message':'Req method is not suitable.'},status=status.HTTP_400_BAD_REQUEST)
+
+        
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = UserTokenSerializer
 
 
-def LoginUser():
-    ...
+
+class GetUser(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self):
+        users = User.objects.all()
+        if not users.exists():
+            return Response({'message':'No user is present'},status=status.HTTP_400_BAD_REQUEST)
+        
+        serialisedUsers = UserSerializers(users,many=True)
+        
+        return Response({'message':'Users founded.','data':serialisedUsers.data},status=status.HTTP_200_OK)
 
 
-def GetUsers():
-    ...
+class SoftDeleteaUser(APIView):
+    permission_classes = [IsAdmin]
+
+    def put(self,request):
+        id = request.id
+        userExit = User.objects.filter(id=id).first()
+        if not userExit:
+            return Response({'message':'Invalid id!'},status=status.HTTP_400_BAD_REQUEST)
+        
+        userExit.is_active = False
+        return Response({'message':'Soft deleted a user.'},status=status.HTTP_200_OK)
+
+
     
-def SoftDeleteaUser():
-    ...
