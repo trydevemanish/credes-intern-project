@@ -3,10 +3,11 @@ from . import views
 
 urlpatterns = [
     #for role -> admin
-    path('create/',view=views.CreateTask,name='create-task'), #create task
+    path('create/',view=views.CreateTask.as_view(),name='create-task'), #create task
     path('all/',view=views.FetchAllTasks,name='fetch-all-tasks'), #fetch all tasks 
     path('<int:id>/delete/', view=views.DeleteTask), #delete task
     path('<int:id>/update/', view=views.UpdateTask), #update task 
+
 
     #for role -> user
     path('',view=views.FetchTask,name='fetch-my-tasks'), # fetch all the task assigned to me
