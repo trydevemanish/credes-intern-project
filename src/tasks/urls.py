@@ -12,5 +12,5 @@ urlpatterns = [
     #for role -> user
     path('',view=views.FetchTask.as_view(),name='fetch-my-tasks'), # fetch all the task assigned to me
     path('<int:id>/',view=views.GetTask.as_view()), # fetch task detail assigned to me with task id
-    path('<int:id>/status/',view=views.UpdateStatus.as_view()), # update task status assigned to me with task id
+    path('<int:id>/status/',view=views.UpdateTaskStatus.as_view()), # update task status assigned to me with task id
 ]

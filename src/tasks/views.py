@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
-from utils.permissions import IsAdmin
+from utils.permissions import IsAdmin,IsActiveUser,IsTaskAssignedToMeOrAdmin
 from .serializers import TaskSerializers
 from .models import Task
 
@@ -65,12 +65,37 @@ class UpdateTask(APIView):
 # for role -> user 
 
 class FetchTask(APIView):
-    pass
+    permission_classes = [IsActiveUser]
+
+    def get(self,request):
+        id=request.data.id # find how to get the user id from the token
+        allTaskAssignedtoMe = Task.objects.filter(assigned_to=id).all()
+
+        if not allTaskAssignedtoMe:
+            return Response.json({'message':'No task assigned to you'},status=status.HTTP_400_BAD_REQUEST)
+        
+        serialisedTaskData = TaskSerializers(allTaskAssignedtoMe,many=True)
+
+        return Response({'message':'Tasks assigned to you!','data':serialisedTaskData.data},status=status.HTTP_200_OK)
 
 
 class GetTask(APIView):
-    pass
+    permission_classes = [IsActiveUser,IsTaskAssignedToMeOrAdmin]
+
+    def get(self,request,id,*args, **kwargs):
+        pass
 
 
-class UpdateStatus(APIView):
-    pass
+class UpdateTaskStatus(APIView):
+    permission_classes = [IsActiveUser,IsTaskAssignedToMeOrAdmin]
+
+    def put(self,request,id,*args, **kwargs):
+        task = Task.objects.filter(id=id).first()
+        if not task:
+            return Response({'message':'Invalid task id.'},status=status.HTTP_400_BAD_REQUEST)
+        
+        self.check_object_permissions(request=request,obj=task)
+
+
+
+        
