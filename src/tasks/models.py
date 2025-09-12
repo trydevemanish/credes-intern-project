@@ -16,4 +16,6 @@ class Task(models.Model):
     updated_at=models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.title} assigned to {self.assigned_to.full_name}'
+        if self.assigned_to:
+            return f"{self.title} assigned to → {self.assigned_to.full_name}"
+        return f'{self.title} assigned to {self.assigned_to}'

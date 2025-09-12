@@ -57,7 +57,6 @@ class SoftDeleteaUser(APIView):
     permission_classes = [IsAdmin]
 
     def put(self,request,id,*args, **kwargs):
-        print(id)
         userExit = CustomUser.objects.filter(id=id).first()
         if not userExit:
             return Response({'message':'Invalid id!'},status=status.HTTP_400_BAD_REQUEST)
