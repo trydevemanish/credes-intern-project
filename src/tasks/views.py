@@ -68,7 +68,7 @@ class FetchTask(APIView):
     permission_classes = [IsActiveUser]
 
     def get(self,request):
-        id=request.data.id # find how to get the user id from the token
+        id=request.user.id # find how to get the user id from the token
         allTaskAssignedtoMe = Task.objects.filter(assigned_to=id).all()
 
         if not allTaskAssignedtoMe:
@@ -83,7 +83,15 @@ class GetTask(APIView):
     permission_classes = [IsActiveUser,IsTaskAssignedToMeOrAdmin]
 
     def get(self,request,id,*args, **kwargs):
-        pass
+        task = Task.objects.filter(id=id).first()
+        if not task:
+            return Response({'message':'Invalid task id.'},status=status.HTTP_400_BAD_REQUEST)
+        
+        self.check_object_permissions(request=request,obj=task)
+
+        serialisedTaskData = TaskSerializers(task)
+
+        return Response({'message':f'Task found with id:{id}','data':serialisedTaskData.data},status=status.HTTP_200_OK)
 
 
 class UpdateTaskStatus(APIView):
@@ -95,6 +103,14 @@ class UpdateTaskStatus(APIView):
             return Response({'message':'Invalid task id.'},status=status.HTTP_400_BAD_REQUEST)
         
         self.check_object_permissions(request=request,obj=task)
+
+        serialisedTaskData = TaskSerializers(task,data=request.data,parTial=True)
+        if serialisedTaskData.is_valid():
+            serialisedTaskData.save()
+            return Response({'message':'Task updated.','data':serialisedTaskData.data},status=status.HTTP_200_OK)
+        
+        return Response(serialisedTaskData.error_messages,status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
