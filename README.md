@@ -77,6 +77,8 @@ python manage.py runserver
 #### You are good to go.
  <br />
 
+--------------------------------------------------
+
 ## Authentication flow.
 **-- For Register user with role user** <br/>
 
@@ -138,3 +140,8 @@ sample reponse
   "access": "newly generated access token............",
 }
 ```
+
+-------------------------------------------
+<br />
+
+click <a href="https://github.com/trydevemanish/credes-intern-project/blob/main/src/Apiendpoints.md">here</a> to view api endpoints.
