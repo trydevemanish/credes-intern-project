@@ -14,4 +14,6 @@ class IsTaskAssignedToMeOrAdmin(BasePermission):
         if request.user.role == "Admin":
             return True
         else:
-            return getattr(obj,"assigned_to",None) == request.user.id
+            return getattr(obj,"assigned_to_id",None) == request.user.id
+        
+        

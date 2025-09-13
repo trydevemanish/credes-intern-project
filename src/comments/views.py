@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from utils.permissions import IsAdmin,IsActiveUser,IsTaskAssignedToMeOrAdmin
 from .models import Comment
+from users.models import CustomUser
 from .serializers import CommentSerializers
 from tasks.models import Task
 
@@ -15,7 +16,7 @@ class FetchCommentsOfTask(APIView):
     def get(self,request,id,*args, **kwargs):
         comments = Comment.objects.filter(task=id).all()
         if not comments:
-            return Response({'message':'No comments yet'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message':f'No comments yet on task with id: {id}'},status=status.HTTP_200_OK)
         
         serialisedCommentData = CommentSerializers(comments,many=True)
 
@@ -45,7 +46,7 @@ class GetYourComment(APIView):
         
 
 
-
+# this is a problem like i manually need to add the task and the author here 
 class AddComment(APIView):
     permission_classes = [IsActiveUser,IsTaskAssignedToMeOrAdmin]
 
@@ -59,7 +60,7 @@ class AddComment(APIView):
         newSerialisedComment = CommentSerializers(data=request.data)
 
         if newSerialisedComment.is_valid():
-            newSerialisedComment.save()
+            newSerialisedComment.save(author=CustomUser.objects.get(id=request.user.id),task=task)
             return Response({'message':f'Comment created on task id:{id}.','data':newSerialisedComment.data},status=status.HTTP_201_CREATED)
         
         return Response(newSerialisedComment.errors,status=status.HTTP_400_BAD_REQUEST)

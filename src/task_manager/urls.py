@@ -23,5 +23,5 @@ urlpatterns = [
     path('health/',view=views.Healthreq.as_view()),
     path('u/',include('users.urls')),
     path('tasks/',include('tasks.urls')),
-    path('tasks/:id/comments/',include('comments.urls')),
+    path('tasks/<int:id>/comments/',include('comments.urls')),
 ]

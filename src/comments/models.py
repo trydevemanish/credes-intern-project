@@ -8,4 +8,6 @@ class Comment(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.author.full_name} added comment on {self.task.title}'
+        if self.author and self.task:
+            return f'{self.author.full_name} added comment on {self.task.title}'
+        return f'{self.author} added comment on task with id:{self.task}'
