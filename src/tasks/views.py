@@ -23,13 +23,14 @@ class CreateTask(APIView):
 class FetchAllTasks(APIView):
     permission_classes = [IsAdmin]
 
-    def get(self,request):
+    def get(self,request,*args, **kwargs):
         allTasks = Task.objects.all()
         serialisedTasksData = TaskSerializers(allTasks,many=True)
         if not allTasks:
             return Response({'message':'No taks yet.'},status=status.HTTP_400_BAD_REQUEST)
         
         return Response({'message':'Fetched all tasks.','data':serialisedTasksData.data},status=status.HTTP_200_OK)
+
 
 
 class DeleteTask(APIView):
@@ -59,6 +60,34 @@ class UpdateTask(APIView):
         
         return Response(serialisedTaskData.error_messages,status=status.HTTP_400_BAD_REQUEST)
 
+
+class SearchByStatus(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self,request,status,*args, **kwargs):
+        tasks = Task.objects.filter(status=status).all()
+
+        if not tasks:
+            return Response({'message':f'No tasks with status:{status}'},status=status.HTTP_200_OK)
+        
+        serialisedTaskData = TaskSerializers(tasks,many=True)
+
+        return Response({'message':f'Tasks with status:{status}','data':serialisedTaskData.data},status=status.HTTP_200_OK)
+    
+    
+
+class SearchByUserId(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self,request,assigned_to_id,*args, **kwargs):
+        tasks = Task.objects.filter(assigned_to=assigned_to_id).all()
+
+        if not tasks:
+            return Response({'message':f'No tasks with user id:{assigned_to_id}'},status=status.HTTP_200_OK)
+        
+        serialisedTaskData = TaskSerializers(tasks,many=True)
+
+        return Response({'message':f'Tasks assigned to :{assigned_to_id}','data':serialisedTaskData.data},status=status.HTTP_200_OK)
 
         
 
@@ -115,7 +144,6 @@ class UpdateTaskStatus(APIView):
             return Response({'message':'Task updated.','data':serialisedTaskData.data},status=status.HTTP_200_OK)
         
         return Response(serialisedTaskData.errors,status=status.HTTP_400_BAD_REQUEST)
-
 
 
 

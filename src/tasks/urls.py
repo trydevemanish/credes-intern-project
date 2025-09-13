@@ -7,6 +7,8 @@ urlpatterns = [
     path('all/',view=views.FetchAllTasks.as_view(),name='fetch-all-tasks'), #fetch all tasks 
     path('<int:id>/delete/', view=views.DeleteTask.as_view()), #delete task
     path('<int:id>/update/', view=views.UpdateTask.as_view()), #update task 
+    path('<str:status>/search/',view=views.SearchByStatus.as_view()), #Admin can search tasks by [todo,inprogress,done]
+    path('<int:assigned_to_id>/search/',view=views.SearchByUserId.as_view()),
 
 
     #for role -> user

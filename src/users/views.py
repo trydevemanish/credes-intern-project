@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from .serializers import UserSerializers,UserTokenSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from utils.permissions import IsAdmin,IsActiveUser
+from utils.permissions import IsAdmin
 from rest_framework.permissions import AllowAny
 from .models import CustomUser
 
@@ -33,10 +33,7 @@ class RegisterUser(APIView):
         
 class MyTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
-    
-    print('request received')
     serializer_class = UserTokenSerializer
-    # print('seializer_class',serializer_class)
 
 
 
